@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JSFiddle orv2pmzs</title>
+
+  <style>
+    
+  </style>
+
+  
+</head>
+<body>
+  <!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>봄날부동산 AI 통합 시스템</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <style> body { font-family: 'Pretendard', sans-serif; } </style>
+</head>
+<body class="bg-slate-50">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    function App() {
+      const [activeTab, setActiveTab] = useState('match');
+      const [directionFilter, setDirectionFilter] = useState('전체');
+      const [maxDeposit, setMaxDeposit] = useState(500);
+      const [maxRent, setMaxRent] = useState(45);
+
+      const updateListings = [
+        { id: 1, title: '사창동 OOO 빌라 201호', type: '원룸 (남향)', price: '보증금 500 / 월세 40만', currentStatus: '거래가능', aiDetected: '가격 5만원 하향 감지', source: '임대인 카카오톡 답변 ("40에 해줄게요")' },
+        { id: 2, title: '복대동 XX 투룸 302호', type: '투룸 (남동향)', price: '보증금 1,000 / 월세 60만', currentStatus: '계약진행중', aiDetected: '거래 완료 추정', source: '국토부 실거래가 신고 데이터 연동' },
+        { id: 3, title: '사창동 △△ 오피스텔 505호', type: '원룸 (남서향)', price: '보증금 300 / 월세 35만', currentStatus: '거래가능', aiDetected: '최신 상태 확인 완료', source: '주기적 자동 검수 알림톡 반응' }
+      ];
+
+      const matchProperties = [
+        { id: 101, title: '사창동 햇살가득 원룸 202호', direction: '남향', deposit: 500, rent: 40, baseScore: 96, tags: ['남향 (채광 우수)', '대출 가능', '사창시장 도보 3분'], reason: '요청하신 남향 구조이며 보증금 500 / 월세 40만원 예산에 정확히 부합하는 최적의 매물입니다.' },
+        { id: 102, title: '사창동 충북대 정문 신축 원룸 301호', direction: '남동향', deposit: 500, rent: 42, baseScore: 91, tags: ['남동향 (아침 채광)', '풀옵션', '엘리베이터'], reason: '남동향으로 아침 채광이 좋고 희망 월세 상한선 내에 들어오는 깔끔한 신축 매물입니다.' },
+        { id: 103, title: '사창동 가성비 원룸 105호', direction: '남서향', deposit: 300, rent: 35, baseScore: 88, tags: ['남서향 (오후 채광)', '보증금 저렴', '즉시 입주'], reason: '보증금과 월세 모두 예산보다 저렴하며 오후 채광이 우수한 남서향 매물입니다.' }
+      ];
+
+      return (
+        <div className="min-h-screen pb-12">
+          <header className="bg-slate-900 text-white shadow-md">
+            <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="bg-emerald-500 text-slate-900 font-bold p-2 rounded-lg text-xl">봄날</div>
+                <div>
+                  <h1 className="text-xl font-bold">봄날부동산 AI 통합 시스템</h1>
+                  <p className="text-xs text-slate-400">자체 사이트 API 연동 · 업무 자동화 프로토타입</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-full text-xs border border-slate-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="text-slate-300">접속자: <strong className="text-white">중개사</strong></span>
+              </div>
+            </div>
+
+            <div className="max-w-6xl mx-auto px-4 flex gap-2 border-t border-slate-800 pt-2">
+              <button onClick={() => setActiveTab('update')} className={`px-4 py-2.5 font-medium text-sm rounded-t-lg ${activeTab === 'update' ? 'bg-slate-50 text-slate-900 font-bold' : 'text-slate-400'}`}>
+                1. AI 매물 정보 업데이트
+              </button>
+              <button onClick={() => setActiveTab('match')} className={`px-4 py-2.5 font-medium text-sm rounded-t-lg ${activeTab === 'match' ? 'bg-slate-50 text-slate-900 font-bold' : 'text-slate-400'}`}>
+                2. AI 맞춤 매물 추천 & 비교
+              </button>
+            </div>
+          </header>
+
+          <main className="max-w-6xl mx-auto px-4 mt-6">
+            {activeTab === 'update' ? (
+              <div className="space-y-4">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 flex justify-between items-center">
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900">✨ AI 매물 최신화 대시보드</h2>
+                    <p className="text-sm text-slate-500">임대인 답변 및 국토부 실거래가 데이터를 실시간 분석합니다.</p>
+                  </div>
+                  <button onClick={() => alert("스캔이 완료되었습니다.")} className="bg-emerald-600 text-white font-semibold px-4 py-2 rounded-xl text-sm">
+                    ⚡ AI 스캔 실행
+                  </button>
+                </div>
+                {updateListings.map(item => (
+                  <div key={item.id} className="bg-white p-5 rounded-xl border border-slate-200 flex justify-between items-center">
+                    <div>
+                      <div className="font-bold text-slate-900">{item.title} ({item.type})</div>
+                      <div className="text-sm text-slate-600">{item.price}</div>
+                      <div className="text-xs text-emerald-700 mt-1">AI 감지: {item.aiDetected}</div>
+                    </div>
+                    <button onClick={() => alert("자체 사이트 DB에 반영되었습니다.")} className="bg-slate-900 text-white text-xs px-4 py-2 rounded-lg">
+                      승인 및 DB 반영
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-4">
+                  <h2 className="text-lg font-bold text-slate-900">✨ AI 맞춤 매물 추천 & 조건 필터</h2>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">희망 방향 (원룸):</label>
+                    <div className="flex gap-2">
+                      {['전체', '남향', '남동향', '남서향'].map(dir => (
+                        <button key={dir} onClick={() => setDirectionFilter(dir)} className={`px-3 py-1.5 text-xs font-semibold rounded-lg border ${directionFilter === dir ? 'bg-emerald-600 text-white' : 'bg-slate-50 text-slate-600'}`}>
+                          {dir}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                        <span>보증금 상한선</span>
+                        <span className="text-emerald-600">{maxDeposit}만원 이하</span>
+                      </div>
+                      <input type="range" min="100" max="1500" step="100" value={maxDeposit} onChange={(e) => setMaxDeposit(Number(e.target.value))} className="w-full accent-emerald-600" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                        <span>월세 상한선</span>
+                        <span className="text-emerald-600">{maxRent}만원 이하</span>
+                      </div>
+                      <input type="range" min="20" max="80" step="5" value={maxRent} onChange={(e) => setMaxRent(Number(e.target.value))} className="w-full accent-emerald-600" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-4">
+                  {matchProperties.map(item => {
+                    let score = item.baseScore;
+                    if (directionFilter !== '전체' && item.direction === directionFilter) score += 3;
+                    if (item.deposit <= maxDeposit && item.rent <= maxRent) score += 2;
+                    else score -= 10;
+
+                    return (
+                      <div key={item.id} className="bg-white p-5 rounded-xl border border-slate-200 space-y-2">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <span className="text-xs font-bold bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded mr-2">{item.direction}</span>
+                            <h3 className="font-bold text-slate-900 inline">{item.title}</h3>
+                            <div className="text-sm font-semibold text-slate-700 mt-1">보증금 {item.deposit}만 / 월세 {item.rent}만원</div>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xs text-slate-400 block font-bold">AI 적합도</span>
+                            <span className="text-xl font-extrabold text-emerald-600">{score}%</span>
+                          </div>
+                        </div>
+                        <div className="bg-slate-50 p-2.5 rounded-lg text-xs text-slate-600">
+                          <strong>AI 추천 사유:</strong> {item.reason}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
+
+  <script>
+    
+  </script>
+</body>
+</html>
